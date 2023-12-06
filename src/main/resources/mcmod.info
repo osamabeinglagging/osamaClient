@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "osamaclient",
+    "name": "osamaClient",
+    "description": "Osama Client!",
+    "version": "${version}",
+    "mcversion": "1.8.9",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "Liquid"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

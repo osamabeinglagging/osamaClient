@@ -1,0 +1,13 @@
+{
+  "compatibilityLevel": "JAVA_8",
+  "package": "dev.liquid.osamaclient.mixin",
+  "client": [
+    "MinecraftInvoker",
+    "MixinNetHandlerPlayClient"
+  ],
+  "verbose": true,
+  "mixins": [
+    "MixinFMLHandshakeMessage",
+    "MixinNetworkManager"
+  ]
+}
