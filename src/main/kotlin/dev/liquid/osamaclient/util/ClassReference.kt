@@ -2,6 +2,8 @@ package dev.liquid.osamaclient.util
 
 import dev.liquid.osamaclient.OsamaClient
 import dev.liquid.osamaclient.feature.FeatureManager
+import dev.liquid.osamaclient.feature.implementation.autoexperiments.AutoExperiments
+import dev.liquid.osamaclient.feature.implementation.esp.ParticleESP
 import net.minecraft.client.Minecraft
 
 
@@ -20,6 +22,11 @@ val player
 val world
   get() = mc.theWorld
 
+val playerController
+  get() = mc.playerController
 
 // Stuff
 val featureManager = FeatureManager.getInstance()
+
+val particleESP = ParticleESP.getInstance()
+val autoExperiments = AutoExperiments.getInstance()

@@ -1,5 +1,7 @@
 package dev.liquid.osamaclient
 
+import cc.polyfrost.oneconfig.utils.commands.CommandManager
+import dev.liquid.osamaclient.command.Set
 import dev.liquid.osamaclient.config.OsamaClientConfig
 import dev.liquid.osamaclient.feature.FeatureManager
 import net.minecraftforge.common.MinecraftForge
@@ -22,5 +24,6 @@ class OsamaClient {
     config = OsamaClientConfig()
 
     FeatureManager.getInstance().loadFeatures().forEach { feature -> MinecraftForge.EVENT_BUS.register(feature) }
+    CommandManager.register(Set())
   }
 }

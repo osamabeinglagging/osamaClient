@@ -1,5 +1,6 @@
 package dev.liquid.osamaclient.feature
 
+import dev.liquid.osamaclient.feature.implementation.autoexperiments.AutoExperiments
 import dev.liquid.osamaclient.feature.implementation.esp.ParticleESP
 import java.util.*
 import java.util.function.Consumer
@@ -18,8 +19,9 @@ class FeatureManager {
 
   private val features = mutableListOf<IFeature>()
   fun loadFeatures(): List<IFeature> {
-    val features = listOf<IFeature>(
+    val features = listOf(
       ParticleESP.getInstance(),
+      AutoExperiments.getInstance()
     )
     this.features.addAll(features)
     return this.features

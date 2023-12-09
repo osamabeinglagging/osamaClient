@@ -3,6 +3,7 @@ package dev.liquid.osamaclient.config
 import cc.polyfrost.oneconfig.config.Config
 import cc.polyfrost.oneconfig.config.annotations.Color
 import cc.polyfrost.oneconfig.config.annotations.Dropdown
+import cc.polyfrost.oneconfig.config.annotations.Number
 import cc.polyfrost.oneconfig.config.annotations.Slider
 import cc.polyfrost.oneconfig.config.annotations.Switch
 import cc.polyfrost.oneconfig.config.core.OneColor
@@ -33,6 +34,30 @@ class OsamaClientConfig : Config(Mod("OsamaClient", ModType.UTIL_QOL), "osamacli
     subcategory = "Auto Experiment"
   )
   var autoExperiment = false
+
+  @Slider(
+    name = "Delay Between Clicks",
+    category = "Mini Macros",
+    subcategory = "Auto Experiment",
+    min = 100f, max = 1000f, step = 50
+  )
+  var autoExperimentClickDelay = 400
+
+  @Number(
+    name = "Max Chronomatron Rounds",
+    category = "Mini Macros",
+    subcategory = "Auto Experiment",
+    min = 1f, max = 20f
+  )
+  var autoExperimentChronomatronMax = 12
+
+  @Number(
+    name = "Max Ultrasequencer Rounds",
+    category = "Mini Macros",
+    subcategory = "Auto Experiment",
+    min = 1f, max = 20f
+  )
+  var autoExperimentSequencerMax = 12
 
   // ==============================
   //              ESP
