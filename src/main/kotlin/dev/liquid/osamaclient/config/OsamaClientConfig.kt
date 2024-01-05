@@ -3,12 +3,24 @@ package dev.liquid.osamaclient.config
 import cc.polyfrost.oneconfig.config.Config
 import cc.polyfrost.oneconfig.config.annotations.Color
 import cc.polyfrost.oneconfig.config.annotations.Dropdown
+import cc.polyfrost.oneconfig.config.annotations.DualOption
+import cc.polyfrost.oneconfig.config.annotations.HUD
+import cc.polyfrost.oneconfig.config.annotations.Info
+import cc.polyfrost.oneconfig.config.annotations.KeyBind
 import cc.polyfrost.oneconfig.config.annotations.Number
 import cc.polyfrost.oneconfig.config.annotations.Slider
 import cc.polyfrost.oneconfig.config.annotations.Switch
 import cc.polyfrost.oneconfig.config.core.OneColor
+import cc.polyfrost.oneconfig.config.core.OneKeyBind
+import cc.polyfrost.oneconfig.config.data.InfoType
 import cc.polyfrost.oneconfig.config.data.Mod
 import cc.polyfrost.oneconfig.config.data.ModType
+import cc.polyfrost.oneconfig.config.data.OptionSize
+import cc.polyfrost.oneconfig.libs.universal.UKeyboard
+import dev.liquid.osamaclient.OsamaClient
+import dev.liquid.osamaclient.config.hud.ForagingMacroHUD
+import dev.liquid.osamaclient.util.macroHandler
+import dev.liquid.osamaclient.util.osamaClient
 
 class OsamaClientConfig : Config(Mod("OsamaClient", ModType.UTIL_QOL), "osamaclient.json") {
 
@@ -16,12 +28,91 @@ class OsamaClientConfig : Config(Mod("OsamaClient", ModType.UTIL_QOL), "osamacli
   //            General
   // ==============================
 
+  @KeyBind(
+    name = "Macro Toggle",
+    category = "General",
+    subcategory = "Macros"
+  )
+  val macroToggleKeyBind = OneKeyBind(UKeyboard.KEY_GRAVE)
+
+  @Dropdown(
+    name = "Macro",
+    category = "General",
+    subcategory = "Macros",
+    options = ["ForagingMacro"]
+  )
+  val activeMacro = 0
+
+  @Switch(
+    name = "Ungrab Mouse (Does not work on MacOS)",
+    category = "General",
+    subcategory = "Macros"
+  )
+  val ungrabMouse = false
+
   @Switch(
     name = "Debug Mode",
     category = "General",
     subcategory = "Debug"
   )
   var osamaClientDebugMode = false
+
+  // ==============================
+  //        Foraging Macro
+  // ==============================
+
+  @Info(
+    text = "Must Use The Layout on Github Page.",
+    size = OptionSize.SINGLE,
+    type = InfoType.WARNING,
+    category = "Foraging Macro"
+  )
+  private var foragingMacroLayoutWarning = ""
+
+  @Info(
+    text = "You need to have monkey pet in pets menu for this to work. AND, pet must spawn during the macro is enabled.",
+    size = OptionSize.SINGLE,
+    type = InfoType.INFO,
+    category = "Foraging Macro"
+  )
+  private var foragingMacroPetWarning = ""
+
+  @Dropdown(
+    name = "Sapling Type",
+    size = OptionSize.DUAL,
+    category = "Foraging Macro",
+    options = ["Jungle Sapling", "Dark Oak Sapling", "Spruce Sapling", "Acacia Sapling"]
+  )
+  var foragingMacroSaplingType = 0
+
+  @Switch(
+    name = "Rod Swap (Must Have Leg Monkey)",
+    category = "Foraging Macro"
+  )
+  var foragingMacroRodSwap = false
+
+  @Switch(
+    name = "Monkey Equipped",
+    description = "In case you want to forage with monkey pet",
+    category = "Foraging Macro",
+  )
+  var foragingMacroDefaultMonkey = false
+
+  @Info(
+    text = "You must have Abiphone (With Builder and Farm Merchant Contacts) in your inventory for this to work.",
+    type = InfoType.INFO,
+    category = "Foraging Macro",
+    subcategory = "AutoRefill"
+  )
+  private var foragingMacroAutoRefillWarning = ""
+
+  @Switch(
+    name = "AutoRefill Chests",
+    category = "Foraging Macro",
+    subcategory = "AutoRefill"
+  )
+  var foragingMacroAutoRefill = false
+
 
   // ==============================
   //          Mini Macros
@@ -102,7 +193,56 @@ class OsamaClientConfig : Config(Mod("OsamaClient", ModType.UTIL_QOL), "osamacli
   )
   var particleEspEspColor = OneColor(0, 255, 255)
 
+  // ==========================
+  //        Features
+  // ==========================
+
+  // AutoSell
+  @Info(
+    text = "Auto Sell Requires Cookie. Make sure you have bone meal removed from instasell.",
+    size = OptionSize.DUAL,
+    category = "Features",
+    subcategory = "AutoSell",
+    type = InfoType.INFO
+  )
+  private var _featureAutoSellCookieWarning = ""
+
+  @Switch(
+    name = "AutoSell",
+    category = "Features",
+    subcategory = "AutoSell"
+  )
+  var featureAutoSellEnable = false
+
+  @DualOption(
+    name = "SellType",
+    category = "Features",
+    subcategory = "AutoSell",
+    left = "Inventory",
+    right = "Inventory And Sack"
+  )
+  var featureAutoSellType = false;
+
+  @Slider(
+    name = "Inventory Full Percentage",
+    category = "Features",
+    subcategory = "AutoSell",
+    min = 10f, max = 100f
+  )
+  var featureAutoSellInvFullPercentage = 60
+
+  // ==========================
+  //            HUD
+  // ==========================
+  @HUD(
+    name = "Foraging Macro HUD",
+    category = "HUD",
+    subcategory = "Foraging Macro"
+  )
+  var foragingMacroHud = osamaClient.hud
+
   init {
     initialize()
+    this.registerKeyBind(macroToggleKeyBind) { macroHandler.toggle() }
   }
 }

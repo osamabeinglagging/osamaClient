@@ -2,6 +2,11 @@ package dev.liquid.osamaclient.feature
 
 import dev.liquid.osamaclient.feature.implementation.autoexperiments.AutoExperiments
 import dev.liquid.osamaclient.feature.implementation.esp.ParticleESP
+import dev.liquid.osamaclient.feature.implementation.foragingmacro.AutoChestRefill
+import dev.liquid.osamaclient.feature.implementation.general.AutoAbiphone
+import dev.liquid.osamaclient.feature.implementation.general.AutoBazaar
+import dev.liquid.osamaclient.feature.implementation.general.AutoInventory
+import dev.liquid.osamaclient.feature.implementation.general.AutoRotation
 import java.util.*
 import java.util.function.Consumer
 
@@ -21,17 +26,20 @@ class FeatureManager {
   fun loadFeatures(): List<IFeature> {
     val features = listOf(
       ParticleESP.getInstance(),
-      AutoExperiments.getInstance()
+      AutoExperiments.getInstance(),
+      AutoRotation.getInstance(),
+      AutoInventory.getInstance(),
+      AutoAbiphone.getInstance(),
+      AutoChestRefill.getInstance(),
+      AutoBazaar.getInstance()
     )
     this.features.addAll(features)
     return this.features
   }
-  fun disableFeatures(disablePassiveFeatures: Boolean) {
-    features.forEach(Consumer { feature: IFeature ->
-      if (!feature.isPassiveFeature || feature.isPassiveFeature && disablePassiveFeatures) {
-        feature.disable()
-      }
-    })
+  fun disableFeatures() {
+    this.features.forEach { feature ->
+      feature.disable()
+    }
   }
 }
 

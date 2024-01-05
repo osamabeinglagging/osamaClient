@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "dev.liquid"
-version = "1.0.0"
+version = "1.2.0"
 
 repositories {
     mavenCentral()
@@ -50,7 +50,7 @@ loom {
     launchConfigs {
         getByName("client") {
             arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
-            property("devauth.enabled", "true")
+            property("devauth.enabled", "false")
         }
     }
 

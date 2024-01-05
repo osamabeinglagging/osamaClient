@@ -1,21 +1,22 @@
 package dev.liquid.osamaclient.feature.implementation.autoexperiments
 
 import dev.liquid.osamaclient.event.PacketEvent
-import dev.liquid.osamaclient.feature.IFeature
+import dev.liquid.osamaclient.feature.AbstractFeature
 import dev.liquid.osamaclient.feature.implementation.helper.Timer
 import dev.liquid.osamaclient.util.*
-import dev.liquid.osamaclient.util.LogUtil.log
 import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.util.StringUtils
+import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.client.event.GuiOpenEvent
+import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent
 import java.util.LinkedList
 import java.util.Queue
 import java.util.TreeMap
 
-class AutoExperiments : IFeature {
+class AutoExperiments : AbstractFeature() {
   // Singleton Creator
   companion object {
     private var instance: AutoExperiments? = null
@@ -80,7 +81,7 @@ class AutoExperiments : IFeature {
   }
 
   @SubscribeEvent
-  fun onPacketChecker(event: PacketEvent.Received) {
+  override fun onPacketReceive(event: PacketEvent.Received) {
     if (this.currentExperiment == Experiment.NONE || !this.canEnable()) return
     if (event.packet !is S2FPacketSetSlot) return
     val slot = (event.packet as S2FPacketSetSlot)
@@ -129,8 +130,9 @@ class AutoExperiments : IFeature {
     }
   }
 
+
   @SubscribeEvent
-  fun onTickSequencerChecker(event: ClientTickEvent) {
+  override fun onTick(event: ClientTickEvent) {
     if (this.currentExperiment != Experiment.SEQUENCER || !this.canEnable()) return
     if (player == null || world == null) return
     if (this.isSolving) return
@@ -149,6 +151,7 @@ class AutoExperiments : IFeature {
     this.sequencerClickQueue.addAll(indexArray.values)
   }
 
+
   @SubscribeEvent
   fun onTickReplay(event: ClientTickEvent) {
     if (this.currentExperiment == Experiment.NONE || !this.canEnable()) return
@@ -162,5 +165,11 @@ class AutoExperiments : IFeature {
       else this.sequencerClickQueue.poll()
     InventoryUtil.clickSlot(polledSlot)
     this.clickDelayTimer = Timer(config.autoExperimentClickDelay)
+  }
+
+  override fun onChatReceive(event: ClientChatReceivedEvent) {
+  }
+
+  override fun onRenderWorldLastEvent(event: RenderWorldLastEvent) {
   }
 }

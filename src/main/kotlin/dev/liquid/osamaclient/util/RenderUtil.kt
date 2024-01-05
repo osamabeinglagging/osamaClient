@@ -18,6 +18,14 @@ import kotlin.math.sqrt
 // Copied from FarmHelper
 // https://github.com/JellyLabScripts/FarmHelper/
 object RenderUtil {
+
+  fun drawAABB(aabb: AxisAlignedBB, color: Color){
+    val d0 = mc.renderManager.viewerPosX
+    val d1 = mc.renderManager.viewerPosY
+    val d2 = mc.renderManager.viewerPosZ
+    drawBox(aabb.offset(-d0, -d1, -d2), color)
+  }
+
   fun drawPoint(point: Vec3, color: Color, pointSize: Int) {
     val radius = pointSize / 200.0
     val x = point.xCoord - radius
@@ -26,9 +34,9 @@ object RenderUtil {
     val x2 = point.xCoord + radius
     val y2 = point.yCoord + radius
     val z2 = point.zCoord + radius
-    val d0 = Minecraft.getMinecraft().renderManager.viewerPosX
-    val d1 = Minecraft.getMinecraft().renderManager.viewerPosY
-    val d2 = Minecraft.getMinecraft().renderManager.viewerPosZ
+    val d0 = mc.renderManager.viewerPosX
+    val d1 = mc.renderManager.viewerPosY
+    val d2 = mc.renderManager.viewerPosZ
     drawBox(AxisAlignedBB(x, y, z, x2, y2, z2).offset(-d0, -d1, -d2), color)
   }
 
@@ -39,9 +47,9 @@ object RenderUtil {
     val x2 = x + 1
     val y2 = y + 1
     val z2 = z + 1
-    val d0 = Minecraft.getMinecraft().renderManager.viewerPosX
-    val d1 = Minecraft.getMinecraft().renderManager.viewerPosY
-    val d2 = Minecraft.getMinecraft().renderManager.viewerPosZ
+    val d0 = mc.renderManager.viewerPosX
+    val d1 = mc.renderManager.viewerPosY
+    val d2 = mc.renderManager.viewerPosZ
     drawBox(AxisAlignedBB(x, y, z, x2, y2, z2).offset(-d0, -d1, -d2), color)
   }
 
@@ -117,26 +125,26 @@ object RenderUtil {
     GlStateManager.enableBlend()
     GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
     GlStateManager.scale(scale, scale, scale)
-    Minecraft.getMinecraft().fontRendererObj.drawString(
+    mc.fontRendererObj.drawString(
       text,
-      -Minecraft.getMinecraft().fontRendererObj.getStringWidth(text) / 2f, 0f, color.rgb, true
+      -mc.fontRendererObj.getStringWidth(text) / 2f, 0f, color.rgb, true
     )
     GlStateManager.popMatrix()
   }
 
   fun drawText(str: String, x: Double, y: Double, z: Double, scale: Float) {
     var lScale = scale
-    val fontRenderer = Minecraft.getMinecraft().fontRendererObj
-    val renderPosX = x - Minecraft.getMinecraft().renderManager.viewerPosX
-    val renderPosY = y - Minecraft.getMinecraft().renderManager.viewerPosY
-    val renderPosZ = z - Minecraft.getMinecraft().renderManager.viewerPosZ
+    val fontRenderer = mc.fontRendererObj
+    val renderPosX = x - mc.renderManager.viewerPosX
+    val renderPosY = y - mc.renderManager.viewerPosY
+    val renderPosZ = z - mc.renderManager.viewerPosZ
     val distance = sqrt(renderPosX * renderPosX + renderPosY * renderPosY + renderPosZ * renderPosZ)
     val multiplier = max(distance / 150f, 0.1)
     lScale *= (0.45f * multiplier).toFloat()
-    val xMultiplier = (if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 2) -1 else 1).toFloat()
+    val xMultiplier = (if (mc.gameSettings.thirdPersonView == 2) -1 else 1).toFloat()
     GlStateManager.pushMatrix()
     GlStateManager.translate(renderPosX, renderPosY, renderPosZ)
-    val renderManager = Minecraft.getMinecraft().renderManager
+    val renderManager = mc.renderManager
     GlStateManager.rotate(-renderManager.playerViewY, 0f, 1f, 0f)
     GlStateManager.rotate(renderManager.playerViewX * xMultiplier, 1f, 0f, 0f)
     GlStateManager.scale(-lScale, -lScale, lScale)
@@ -174,7 +182,7 @@ object RenderUtil {
     GlStateManager.disableLighting()
     GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
     GlStateManager.disableTexture2D()
-    val renderManager = Minecraft.getMinecraft().renderManager
+    val renderManager = mc.renderManager
     val renderPosX = to.xCoord - renderManager.viewerPosX
     val renderPosY = to.yCoord - renderManager.viewerPosY
     val renderPosZ = to.zCoord - renderManager.viewerPosZ
@@ -194,6 +202,6 @@ object RenderUtil {
   }
 
   fun drawTracer(to: Vec3, color: Color) {
-    drawTracer(Vec3(0.0, Minecraft.getMinecraft().thePlayer.getEyeHeight().toDouble(), 0.0), to, color)
+    drawTracer(Vec3(0.0, mc.thePlayer.getEyeHeight().toDouble(), 0.0), to, color)
   }
 }

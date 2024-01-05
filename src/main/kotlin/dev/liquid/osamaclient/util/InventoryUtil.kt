@@ -3,7 +3,11 @@ package dev.liquid.osamaclient.util
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.ContainerChest
+import net.minecraft.util.StringUtils
 
+/**
+ * Utility class providing various inventory-related functions.
+ */
 object InventoryUtil {
   /**
    * Retrieves the display name of the currently open GUI, if it is a chest container.
@@ -53,33 +57,42 @@ object InventoryUtil {
    * @param itemName The name to search for.
    * @return The slot number of the matching item, or -1 if no match is found.
    */
-  fun getContainerSlotForItem(itemName: String): Int {
+  fun getContainerSlotForItem(itemName: String, equals: Boolean = false): Int {
     for (slot in player.openContainer.inventorySlots) {
+      if (slot == null || !slot.hasStack) continue
+      if (equals && StringUtils.stripControlCodes(slot.stack.displayName)
+          .equals(itemName, ignoreCase = true)
+      ) return slot.slotNumber
+      if (!equals && StringUtils.stripControlCodes(slot.stack.displayName)
+          .contains(itemName, ignoreCase = true)
+      ) return slot.slotNumber
+    }
+    return -1
+  }
+
+  /**
+   * Searches the slots of the currently open container for an item with a display name
+   * containing the specified [itemName], case-insensitive.
+   *
+   * @param itemName The name to search for.
+   * @return The slot number of the matching item, or -1 if no match is found.
+   */
+  fun getInventorySlotForItem(itemName: String): Int {
+    for (i in 9 until player.inventoryContainer.inventorySlots.size) {
+      val slot = player.inventoryContainer.getSlot(i)
       if (slot == null || !slot.hasStack) continue
       if (slot.stack.displayName.contains(itemName, ignoreCase = true)) return slot.slotNumber
     }
     return -1
   }
 
-  // Documentation from MacroHQ/Macro Framework
   /**
-   * Click an item in the currently open inventory / gui.
+   * Clicks a slot in the currently open inventory/GUI.
    *
-   * @param slot   Slot number of the item you want to click.
-   * @param button <br>
-   *               - 0: Left click. <br>
-   *               - 1: Right click. <br>
-   *               - 2: Middle click, not sure.
-   * @param type   <br>
-   *               - 0: PICKUP - Regular click <br>
-   *               - 1: QUICK_MOVE - Shift click to move from inventory to container for example. <br>
-   *               - 2: SWAP - Not sure, would not recommend using. <br>
-   *               - 3: CLONE - Not sure, would not recommend using. <br>
-   *               - 4: Throw - Throw away an item from an inventory. <br>
-   *               - 5: QUICK_CRAFT - Quick craft, again I don't see this being useful so don't use. <br>
-   *               - 6: PICKUP_ALL - Don't know if it's different to PICKUP.
-   * @return Whether the slot was successfully clicked. To prevent ping-less clicks,
-   * it won't click unless there's an item in the slot.
+   * @param slot Slot number of the item you want to interact with.
+   * @param mouseButton Left, right, or middle click. Use constants from [MouseButton].
+   * @param mode Interaction mode. Use constants from [ClickMode].
+   * @return Whether the slot was successfully clicked.
    */
   fun clickSlot(slot: Int, mouseButton: Int = MouseButton.LEFT, mode: Int = ClickMode.PICKUP): Boolean {
     if (mc.currentScreen == null || player.openContainer == null
@@ -93,7 +106,7 @@ object InventoryUtil {
   /**
    * Shift-clicks the item from the specified initial slot into the container to quickly move it.
    *
-   * @param initialSlot The index of the slot containing the item to be shift-clicked.
+   * @param slot The index of the slot containing the item to be shift-clicked.
    * @return `true` if the shift-click operation is successful; `false` otherwise.
    */
   fun shiftClickIntoContainer(slot: Int): Boolean {
@@ -159,14 +172,149 @@ object InventoryUtil {
   fun closeOpenGUI() {
     if (player.openContainer != null) player.closeScreen()
   }
+
+  /**
+   * Retrieves the lore of an ItemStack.
+   *
+   * @param sourceSlot The open container slot to retrieve the lore from.
+   * @return The formatted lore as a single string.
+   */
+  fun getLore(sourceSlot: Int): String {
+    val stack = player.openContainer.getSlot(sourceSlot).stack ?: return ""
+    val base = stack.tagCompound.getCompoundTag("display").getTagList("Lore", 8)
+    var lore = ""
+    for (i in 0..base.tagCount()) {
+      lore += StringUtils.stripControlCodes(base.getStringTagAt(i).lowercase().trim()) + " "
+    }
+    return lore
+  }
+
+  /**
+   * Checks if the specified items are available in the player's inventory.
+   *
+   * @param items A list of item names to check for in the inventory.
+   * @return `true` if all items are found in the inventory, `false` otherwise.
+   */
+  fun areItemsAvailableInInventory(items: MutableList<String>): Boolean {
+    for (slot in player.inventoryContainer.inventorySlots) {
+      if (!slot.hasStack) continue
+      val itemName = StringUtils.stripControlCodes(slot.stack.displayName)
+      items.removeIf { itemName.contains(it) }
+    }
+    return items.isEmpty()
+  }
+
+  /**
+   * Checks if the specified items are available in the player's hotbar.
+   *
+   * @param items A list of item names to check for in the hotbar.
+   * @return `true` if all items are found in the hotbar, `false` otherwise.
+   */
+  fun areItemsAvailableInHotbar(items: MutableList<String>): Boolean {
+    for (i in 0..7) {
+      val stack = player.inventory.getStackInSlot(i) ?: continue
+      val itemName = StringUtils.stripControlCodes(stack.displayName ?: continue)
+      items.removeIf { itemName.contains(it) }
+    }
+    return items.isEmpty()
+  }
+
+  /**
+   * Calculates the number of empty slots in the player's currently opened container (if it is a chest).
+   * @return The count of empty slots in the container; returns 0 if the container is not a chest.
+   */
+  fun emptySlotCountInOpenContainer(): Int {
+    if (player.openContainer !is ContainerChest) return 0
+
+    var emptySlots = 0
+    for (i in 0..player.openContainer.inventorySlots.size - 37) {
+      val slot = player.openContainer.getSlot(i)
+      if (slot == null || !slot.hasStack) {
+        emptySlots++
+      }
+    }
+    return emptySlots
+  }
+
+  /**
+   * Calculates the number of empty slots in the player's inventory (excluding hotbar).
+   * @return The count of empty slots in the inventory.
+   */
+  fun emptySlotCountInInventory(): Int {
+    var emptySlots = 0
+    for (i in 9 until player.inventoryContainer.inventorySlots.size) {
+      val slot = player.inventoryContainer.getSlot(i)
+      if (slot == null || !slot.hasStack) {
+        emptySlots++
+      }
+    }
+    return emptySlots
+  }
+
+  fun getSlotWithSpecificAmount(itemName: String, amount: Int = 64): Int {
+    for (i in 0..player.openContainer.inventorySlots.size - 37) {
+      val slot = player.openContainer.getSlot(i)
+      if (slot == null || !slot.hasStack) continue
+
+      val stack = slot.stack
+      val stackSize = stack.stackSize
+      val slotName = StringUtils.stripControlCodes(stack.displayName).lowercase()
+
+      if (!slotName.contains(itemName.lowercase())) continue
+      if (stackSize == amount) return slot.slotNumber
+
+    }
+    return -1
+  }
+
+  fun getAllInventorySlotsForItem(itemName: String): MutableList<Int> {
+    val slots = mutableListOf<Int>()
+    val inventoryStartIndex = player.openContainer.inventorySlots.size - 36
+    for (i in inventoryStartIndex until player.openContainer.inventorySlots.size) {
+      val slot = player.openContainer.getSlot(i)
+      if (slot == null || !slot.hasStack) continue
+      val slotName = StringUtils.stripControlCodes(slot.stack.displayName).lowercase()
+      if (slotName.contains(itemName.lowercase())) slots.add(slot.slotNumber)
+    }
+    return slots
+  }
+
+  fun getAllContainerSlotsForItem(vararg itemName: String): MutableList<Int> {
+    val slots = mutableListOf<Int>()
+    for (i in 0 until player.openContainer.inventorySlots.size - 36) {
+      val slot = player.openContainer.getSlot(i)
+      if (slot == null || !slot.hasStack) continue
+      val slotName = StringUtils.stripControlCodes(slot.stack.displayName).lowercase()
+      if (itemName.any { slotName.contains(it.lowercase()) }) slots.add(slot.slotNumber)
+    }
+    return slots
+  }
+
+  fun getTotalItemAmount(itemName: String): Int {
+    var size = 0
+    getAllInventorySlotsForItem(itemName).forEach {
+      size += player.inventoryContainer.getSlot(it).stack?.stackSize ?: 0
+    }
+    return size
+  }
+
+  fun inventoryFillPercentage(): Float {
+    return (1 - (this.emptySlotCountInInventory() / 36f)) * 100f
+  }
 }
 
+/**
+ * Constants representing mouse buttons for inventory interactions.
+ */
 object MouseButton {
   const val LEFT = 0
   const val RIGHT = 1
   const val MIDDLE = 2
 }
 
+/**
+ * Constants representing different modes of inventory interactions.
+ */
 object ClickMode {
   const val PICKUP = 0
   const val QUICK_MOVE = 1

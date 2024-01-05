@@ -17,9 +17,11 @@ object LogUtil {
   }
 
   fun log(message: Any) {
-    if (!config.osamaClientDebugMode || message == lastDebugMessage) return
+    if (message == lastDebugMessage) return
     lastDebugMessage = message.toString()
-    send("7$message")
+
+    if (config.osamaClientDebugMode) send("7$message")
+    else println(message)
   }
 
   private fun send(message: String) {
