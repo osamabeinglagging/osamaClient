@@ -34,6 +34,7 @@ dependencies {
     modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.2")
 
     embed("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
+    implementation("it.unimi.dsi:fastutil:8.2.1")
 }
 
 blossom {
@@ -50,7 +51,7 @@ loom {
     launchConfigs {
         getByName("client") {
             arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
-            property("devauth.enabled", "true")
+            property("devauth.enabled", "false")
         }
     }
 

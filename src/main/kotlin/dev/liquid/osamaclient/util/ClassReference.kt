@@ -30,3 +30,8 @@ val featureManager = FeatureManager.getInstance()
 
 val particleESP = ParticleESP.getInstance()
 val autoExperiments = AutoExperiments.getInstance()
+
+// Cache
+val cachedWorld = osamaClient.cachedWorld
+
+val worldScanner = osamaClient.worldScanner

@@ -3,6 +3,7 @@
   "package": "dev.liquid.osamaclient.mixin",
   "client": [
     "MinecraftInvoker",
+    "MixinChunkProvider",
     "MixinNetHandlerPlayClient"
   ],
   "verbose": true,

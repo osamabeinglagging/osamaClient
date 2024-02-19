@@ -10,6 +10,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.StringUtils
 import net.minecraft.util.Vec3
 import net.minecraftforge.client.event.RenderGameOverlayEvent
+import net.minecraftforge.client.event.RenderWorldLastEvent
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.max
@@ -32,6 +33,69 @@ object RenderUtil {
     drawBox(AxisAlignedBB(x, y, z, x2, y2, z2).offset(-d0, -d1, -d2), color)
   }
 
+
+  fun drawBox(event: RenderWorldLastEvent, aabb: AxisAlignedBB, color: Color, esp: Boolean) {
+    val tessellator = Tessellator.getInstance()
+    val bufferBuilder = tessellator.worldRenderer
+    val render = mc.renderViewEntity
+    val realX = render.lastTickPosX + (render.posX - render.lastTickPosX) * event.partialTicks
+    val realY = render.lastTickPosY + (render.posY - render.lastTickPosY) * event.partialTicks
+    val realZ = render.lastTickPosZ + (render.posZ - render.lastTickPosZ) * event.partialTicks
+    val r = color.red / 255.0f
+    val g = color.green / 255.0f
+    val b = color.blue / 255.0f
+    val a = 255.0f * 0.9f
+    GlStateManager.pushMatrix()
+    GlStateManager.translate(-realX, -realY, -realZ)
+    GlStateManager.disableTexture2D()
+    GlStateManager.disableLighting()
+    GL11.glDisable(3553)
+    GL11.glLineWidth(3f)
+    GlStateManager.enableBlend()
+    GlStateManager.disableAlpha()
+    if (esp) {
+      GlStateManager.disableDepth()
+    }
+    GlStateManager.depthMask(false)
+    GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+    bufferBuilder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR)
+    bufferBuilder.pos(aabb.minX, aabb.minY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.minY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.minY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.maxY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.minY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.minY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.minY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.maxY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.minY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.minY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.minY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.minY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.maxY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.minY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.maxY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.maxY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.maxY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.maxY, aabb.maxZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.maxY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.minY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.maxY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.minX, aabb.maxY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.maxY, aabb.minZ).color(r, g, b, a).endVertex()
+    bufferBuilder.pos(aabb.maxX, aabb.maxY, aabb.maxZ).color(r, g, b, a).endVertex()
+    tessellator.draw()
+    GlStateManager.translate(realX, realY, realZ)
+    GlStateManager.disableBlend()
+    GlStateManager.enableAlpha()
+    GlStateManager.enableTexture2D()
+    if (esp) {
+      GlStateManager.enableDepth()
+    }
+    GlStateManager.depthMask(true)
+    GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+    GlStateManager.popMatrix()
+  }
+
   fun drawBox(blockPos: BlockPos, color: Color) {
     val x = blockPos.x.toDouble()
     val y = blockPos.y.toDouble()
@@ -39,13 +103,15 @@ object RenderUtil {
     val x2 = x + 1
     val y2 = y + 1
     val z2 = z + 1
+    drawBox(AxisAlignedBB(x, y, z, x2, y2, z2), color)
+  }
+
+  fun drawBox(aabbb: AxisAlignedBB, color: Color) {
     val d0 = Minecraft.getMinecraft().renderManager.viewerPosX
     val d1 = Minecraft.getMinecraft().renderManager.viewerPosY
     val d2 = Minecraft.getMinecraft().renderManager.viewerPosZ
-    drawBox(AxisAlignedBB(x, y, z, x2, y2, z2).offset(-d0, -d1, -d2), color)
-  }
+    val aabb = aabbb.offset(-d0, -d1, -d2)
 
-  fun drawBox(aabb: AxisAlignedBB, color: Color) {
     GlStateManager.pushMatrix()
     GlStateManager.enableBlend()
     GlStateManager.disableDepth()
