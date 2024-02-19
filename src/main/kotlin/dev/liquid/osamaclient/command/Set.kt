@@ -31,26 +31,6 @@ class Set {
         a.forEach {
             abs.add(it.cachedSection.getSectionBounds())
         }
-//        val section = cachedWorld.getSectionFromCoordinates(player.posX.toInt(), player.posY.toInt(), player.posZ.toInt())
-//        if (section == null) {
-//            info("Section is null")
-//        } else {
-//            info("Section: $section was found. Finding Neighbors")
-//            abs.add(section.getSectionBounds())
-//            val neighbors = cachedWorld.getNeighbourSections(section)
-//            neighbors.forEach {
-//                abs.add(it.getSectionBounds())
-//            }
-//        }
-//        for(i in 0 until region!!.array.size){
-//            if(region!!.array[i] == null){
-//                val x = (region!!.regionX * 256) + ((i and 0xF) shl 4)
-//                val y = (i shr 8) shl 4
-//                val z = (region!!.regionZ * 256) + (((i and 0xFF) shr 4) shl 4)
-//                abs.add(AxisAlignedBB(x.toDouble(), y.toDouble(), z.toDouble(), (x+16).toDouble(), (y+16).toDouble(), (z+16).toDouble()))
-//                info("$i. x: $x, y: $y, z: $z")
-//            }
-//        }
     }
 
     @SubCommand
